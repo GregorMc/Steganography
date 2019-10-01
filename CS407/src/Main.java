@@ -1,7 +1,7 @@
 import java.io.File;
-public class main {
+public class Main {
     public static void main(final String[] args) {
-        stegonography stego = new stegonography();
+        Stegonography stego = new Stegonography();
         File coverImage = stego.getImage("CS407/MARBLES.BMP");
         System.out.println("#ofBytes: " + stego.getFileSize(coverImage));
 //        File fileToHide = stego.getFileToHide("");

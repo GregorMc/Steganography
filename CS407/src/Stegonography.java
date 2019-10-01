@@ -1,6 +1,6 @@
 import java.io.File;
 
-public class stegonography {
+public class Stegonography {
     public void hideFile(File coverImage, File fileToHide){
         if (enoughSpace(coverImage, fileToHide)){
             //start hiding the image
