@@ -1,7 +1,13 @@
+import com.sun.javafx.fxml.expression.BinaryExpression;
+import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
+import jdk.nashorn.internal.ir.BinaryNode;
+import jdk.nashorn.internal.runtime.regexp.joni.BitSet;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class Stegonography {
@@ -20,6 +26,9 @@ public class Stegonography {
                 e.printStackTrace();
             }
             //start changing bits in the coverImage but ignore the first 54 Bytes
+            BufferedImage bufferedImage = cover;
+            WritableRaster raster = bufferedImage.getRaster();
+            DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
 
             //write the hidden file size
 
@@ -30,7 +39,7 @@ public class Stegonography {
             //write altered cover image to new file
             File stegoImage = new File("CS407/stegoImage.BMP");
             try {
-                ImageIO.write(cover,"BMP", stegoImage);
+                ImageIO.write(cover, "BMP", stegoImage);
                 System.out.println("Writing complete");
             } catch (IOException e) {
                 e.printStackTrace();
