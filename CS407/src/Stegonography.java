@@ -1,4 +1,9 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class Stegonography {
     public void hideFile(File coverImage, File fileToHide) {
         if (enoughSpace(coverImage, fileToHide)) {
@@ -8,11 +13,28 @@ public class Stegonography {
             //how big is the file to hide
             long fileSize = getFileSize(coverImage);
             //both of the above are at the start of every stegoimage
+            BufferedImage cover = null;
+            try {
+                cover = ImageIO.read(coverImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //start changing bits in the coverImage but ignore the first 54 Bytes
 
-            //start changing bits in the coverImage
+            //write the hidden file size
+
+            //write the hidden file type
+
+            //write the rest of the file
 
             //write altered cover image to new file
-
+            File stegoImage = new File("CS407/stegoImage.BMP");
+            try {
+                ImageIO.write(cover,"BMP", stegoImage);
+                System.out.println("Writing complete");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             System.out.println("The coverImage does not have a big enough file size to hide the given file");
         }
@@ -21,6 +43,14 @@ public class Stegonography {
 
     public void revealFile() {
         //get the file from a Stego-image
+
+        //get the number of hidden bits
+
+        //get the file type
+
+        //ignore first 150 Bytes then get the last bit of each byte and add to array
+
+        //write generated array to a file of the file type extracted earlier
     }
 
     public File getImage(String imagePath) {
