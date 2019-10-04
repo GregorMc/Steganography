@@ -11,7 +11,7 @@ public class Stegonography {
         if (enoughSpace(coverImage, fileToHide)) {
             //start hiding the image
             //get the type of the file
-            String fileType = getFileTypeToHide(coverImage.getPath());
+            String fileType = getFileTypeToHide(fileToHide.getPath());
             //how big is the file to hide
             long fileSize = getFileSize(fileToHide);
             //both of the above are at the start of every stegoimage
@@ -22,9 +22,6 @@ public class Stegonography {
                 e.printStackTrace();
             }
             //start changing bits in the coverImage but ignore the first 54 Bytes
-            BufferedImage bufferedImage = cover;
-            WritableRaster raster = bufferedImage.getRaster();
-            DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
 
 
 //colour to bin test
@@ -101,7 +98,8 @@ public class Stegonography {
     public long maxPossibleFileSize(long coverImageSize) {
         // how many LSB are useable?
         //54 bytes reserved for file info
-        //4 Bytes for image
+        //32 LSB for size of hidden file
+        //64 LSB for file type to hide
         long maximum = coverImageSize - (54 + 96);
         return maximum;
     }
@@ -116,8 +114,17 @@ public class Stegonography {
         return false;
     }
 
-    public String getHiddenFileType() {
+    public String getHiddenFileType(BufferedImage image) {
         // get the file type of hidden file within the Stego-image
+
+        //ignore first 54Bytes
+        //ignore another 32Bytes
+        //read next 64Bytes
+
+        for (int i = 0; i < image.getWidth(); i++) {
+
+        }
+
         return null;
     }
 
