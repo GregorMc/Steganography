@@ -1,8 +1,3 @@
-import com.sun.javafx.fxml.expression.BinaryExpression;
-import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
-import jdk.nashorn.internal.ir.BinaryNode;
-import jdk.nashorn.internal.runtime.regexp.joni.BitSet;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -17,7 +12,7 @@ public class Stegonography {
             //get the type of the file
             String fileType = getFileTypeToHide(coverImage.getPath());
             //how big is the file to hide
-            long fileSize = getFileSize(coverImage);
+            long fileSize = getFileSize(fileToHide);
             //both of the above are at the start of every stegoimage
             BufferedImage cover = null;
             try {
