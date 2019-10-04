@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
@@ -25,6 +26,14 @@ public class Stegonography {
             WritableRaster raster = bufferedImage.getRaster();
             DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
 
+
+//colour to bin test
+//            System.out.println(getRGB(cover, (int) getFileSize(fileToHide) + 96).length);
+//            Color mycolor = (getRGB(cover,50000)[25000]);
+//            Integer red = mycolor.getRed();
+//            System.out.println(mycolor);
+//            System.out.println(Integer.toBinaryString(red));
+
             //write the hidden file size
 
             //write the hidden file type
@@ -43,6 +52,21 @@ public class Stegonography {
             System.out.println("The coverImage does not have a big enough file size to hide the given file");
         }
 
+    }
+
+    public Color[] getRGB(BufferedImage img, int amount) {
+        int x = img.getWidth();
+        int y = img.getHeight();
+        int counter = 0;
+        Color[] rgb = new Color[amount];
+
+        for (int i = 0; (i < x) && (counter < amount); i++) {
+            for (int j = 0; (j < y) && (counter < amount); j++) {
+                rgb[counter] = new Color(img.getRGB(i, j));
+                counter++;
+            }
+        }
+        return rgb;
     }
 
     public void revealFile() {
