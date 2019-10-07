@@ -25,6 +25,9 @@ public class Stegonography {
             WritableRaster raster = bufferedImage.getRaster();
             DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
 
+
+
+
             //write the hidden file size
 
             //write the hidden file type
@@ -102,5 +105,22 @@ public class Stegonography {
         int typeStart = filepath.indexOf(".");
         String fileType = filepath.substring((typeStart + 1), filepath.length());
         return fileType;
+    }
+
+//still need to take in image as parameter
+    public int bitManipulation(byte[] payload, int bytesToManipulate) {
+        int offset = (54 + 96);
+
+        for (int i=0; i<bytesToManipulate; i++, offset++) {
+            int payloadByte = payload[offset];
+            for (int bit =7; bit>=0; --bit) {
+               int b = (payloadByte >> bit) & 1;
+
+               payload[offset] = (byte)((payload[offset] & 0x1) | b);
+            }
+
+        }
+
+
     }
 }
