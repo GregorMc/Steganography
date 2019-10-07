@@ -138,20 +138,17 @@ public class Stegonography {
         return fileType;
     }
 
-//still need to take in image as parameter
-    public int bitManipulation(byte[] payload, int bytesToManipulate) {
-        int offset = (54 + 96);
 
-        for (int i=0; i<bytesToManipulate; i++, offset++) {
-            int payloadByte = payload[offset];
-            for (int bit =7; bit>=0; --bit) {
-               int b = (payloadByte >> bit) & 1;
+    public String bitManipulation(String payload, int payloadBit) {
 
-               payload[offset] = (byte)((payload[offset] & 0x1) | b);
-            }
+        String payLoadBitString = Integer.toString(payloadBit);
+
+        if (!payLoadBitString.equals(payload.substring(payload.length() - 1))   ) {
+            payload = payload.substring(0, payload.length() - 1);
+            payload = payload + payLoadBitString;
 
         }
 
-
+        return payload;
     }
 }

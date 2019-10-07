@@ -5,5 +5,6 @@ public class Main {
         File coverImage = stego.getImage("CS407/MARBLES.BMP");
         File fileToHide = new File("CS407/test.txt");
         stego.hideFile(coverImage,fileToHide);
+       // System.out.println( stego.bitManipulation("00000001", 0));
     }
 }
