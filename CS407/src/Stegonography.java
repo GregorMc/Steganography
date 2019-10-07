@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
@@ -10,7 +11,7 @@ public class Stegonography {
         if (enoughSpace(coverImage, fileToHide)) {
             //start hiding the image
             //get the type of the file
-            String fileType = getFileTypeToHide(coverImage.getPath());
+            String fileType = getFileTypeToHide(fileToHide.getPath());
             //how big is the file to hide
             long fileSize = getFileSize(fileToHide);
             //both of the above are at the start of every stegoimage
@@ -21,9 +22,14 @@ public class Stegonography {
                 e.printStackTrace();
             }
             //start changing bits in the coverImage but ignore the first 54 Bytes
-            BufferedImage bufferedImage = cover;
-            WritableRaster raster = bufferedImage.getRaster();
-            DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
+
+
+//colour to bin test
+//            System.out.println(getRGB(cover, (int) getFileSize(fileToHide) + 96).length);
+//            Color mycolor = (getRGB(cover,50000)[25000]);
+//            Integer red = mycolor.getRed();
+//            System.out.println(mycolor);
+//            System.out.println(Integer.toBinaryString(red));
 
 
 
@@ -46,6 +52,21 @@ public class Stegonography {
             System.out.println("The coverImage does not have a big enough file size to hide the given file");
         }
 
+    }
+
+    public Color[] getRGB(BufferedImage img, int amount) {
+        int x = img.getWidth();
+        int y = img.getHeight();
+        int counter = 0;
+        Color[] rgb = new Color[amount];
+
+        for (int i = 0; (i < x) && (counter < amount); i++) {
+            for (int j = 0; (j < y) && (counter < amount); j++) {
+                rgb[counter] = new Color(img.getRGB(i, j));
+                counter++;
+            }
+        }
+        return rgb;
     }
 
     public void revealFile() {
@@ -80,7 +101,8 @@ public class Stegonography {
     public long maxPossibleFileSize(long coverImageSize) {
         // how many LSB are useable?
         //54 bytes reserved for file info
-        //4 Bytes for image
+        //32 LSB for size of hidden file
+        //64 LSB for file type to hide
         long maximum = coverImageSize - (54 + 96);
         return maximum;
     }
@@ -95,8 +117,17 @@ public class Stegonography {
         return false;
     }
 
-    public String getHiddenFileType() {
+    public String getHiddenFileType(BufferedImage image) {
         // get the file type of hidden file within the Stego-image
+
+        //ignore first 54Bytes
+        //ignore another 32Bytes
+        //read next 64Bytes
+
+        for (int i = 0; i < image.getWidth(); i++) {
+
+        }
+
         return null;
     }
 
