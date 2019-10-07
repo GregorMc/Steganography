@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public class Stegonography {
@@ -117,6 +118,17 @@ public class Stegonography {
         return false;
     }
 
+    public byte[] getBytesFromFile(File payloadFile) throws IOException {
+        byte[] bytesArray = new byte[(int) payloadFile.length()];
+
+        FileInputStream fis = new FileInputStream(payloadFile);
+        fis.read(bytesArray); //read file into bytes[]
+        fis.close();
+
+        return bytesArray;
+    }
+
+
     public String getHiddenFileType(BufferedImage image) {
         // get the file type of hidden file within the Stego-image
 
@@ -140,15 +152,12 @@ public class Stegonography {
 
 
     public String bitManipulation(String payload, int payloadBit) {
-
         String payLoadBitString = Integer.toString(payloadBit);
-
         if (!payLoadBitString.equals(payload.substring(payload.length() - 1))   ) {
             payload = payload.substring(0, payload.length() - 1);
             payload = payload + payLoadBitString;
 
         }
-
         return payload;
     }
 }
