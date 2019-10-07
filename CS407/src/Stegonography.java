@@ -1,8 +1,6 @@
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,8 +29,6 @@ public class Stegonography {
 //            Integer red = mycolor.getRed();
 //            System.out.println(mycolor);
 //            System.out.println(Integer.toBinaryString(red));
-
-
 
 
             //write the hidden file size
@@ -118,28 +114,60 @@ public class Stegonography {
         return false;
     }
 
-    public byte[] getBytesFromFile(File payloadFile) throws IOException {
-        byte[] bytesArray = new byte[(int) payloadFile.length()];
+    public byte[] getBytesFromFile(File payloadFile, long fileSize, String fileType) throws IOException {
+        byte[] bytesArray = new byte[(int) payloadFile.length() + 12]; //4 bytes for file length 8 bytes for filetype
 
+        byte[] fileTypeByteArray = new byte[8];
+        int counter = 0;
+        counter = fileType.getBytes().length;
+        int position = 0;
+        while (counter < 8) {
+            fileTypeByteArray[position] = 0;
+            counter = counter + 1;
+            position++;
+        }
+        counter = 0;
+        for (int i = position; i < 8; i++) {
+            fileTypeByteArray[i] = fileType.getBytes()[counter];
+            counter ++;
+        }
+        for (int i = 4; i < 12; i++) {
+            bytesArray[i] = fileTypeByteArray[i-4];
+        }
+        //the above writes the fileType to the file
+        byte[] filesizebytes = new byte[] {
+                (byte)(fileSize >>> 24),
+                (byte)(fileSize >>> 16),
+                (byte)(fileSize >>> 8),
+                (byte)fileSize};
+
+
+        for (int i = 0; i < 4; i++) {
+            bytesArray[i] = filesizebytes[i];
+        }
+        byte[] filebytes = new byte[(int) payloadFile.length()];
         FileInputStream fis = new FileInputStream(payloadFile);
-        fis.read(bytesArray); //read file into bytes[]
+        fis.read(filebytes);
         fis.close();
 
+        for(int i = 0;i<filebytes.length; i++){
+            bytesArray[i+12] = filebytes[i];
+        }
+
+        for (int i =0; i<bytesArray.length;i++){
+            System.out.println(String.format("%8s", Integer.toBinaryString((int)bytesArray[i])).replace(' ', '0'));
+        }
         return bytesArray;
     }
 
 
     public String getHiddenFileType(BufferedImage image) {
         // get the file type of hidden file within the Stego-image
-
         //ignore first 54Bytes
         //ignore another 32Bytes
         //read next 64Bytes
-
         for (int i = 0; i < image.getWidth(); i++) {
-
         }
-
         return null;
     }
 
@@ -153,11 +181,13 @@ public class Stegonography {
 
     public String bitManipulation(String payload, int payloadBit) {
         String payLoadBitString = Integer.toString(payloadBit);
-        if (!payLoadBitString.equals(payload.substring(payload.length() - 1))   ) {
+
+        if (!payLoadBitString.equals(payload.substring(payload.length() - 1))) {
             payload = payload.substring(0, payload.length() - 1);
             payload = payload + payLoadBitString;
 
         }
+
         return payload;
     }
 }
