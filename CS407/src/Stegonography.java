@@ -1,9 +1,7 @@
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class Stegonography {
     public void hideFile(File coverImage, File fileToHide) throws IOException {
@@ -22,7 +20,7 @@ public class Stegonography {
             }
             //start changing bits in the coverImage but ignore the first 54 Bytes
 
-            int amount = ((int) getFileSize(fileToHide) + 96) / 3;
+            int amount = ((int) getFileSize(fileToHide) * 8 + 96) / 3;
             Color[] rgb = getRGB(cover, amount);
             byte[] payloadBytes;
             payloadBytes = getBytesFromFile(fileToHide, getFileSize(fileToHide), getFileTypeToHide(fileToHide.getPath()));
@@ -38,25 +36,27 @@ public class Stegonography {
             }
 
             payloadbitCounter = 0;
+           // System.out.println("Payload bit length: " + payloadBits.length);
             for (int i = 0; i < rgb.length; i++) {
 
                 Integer red = rgb[i].getRed();
                 // get payload bit function
-
 //                System.out.println("PIXEL NUMBER: " + i);
 //                System.out.println("red " + red);
 //                System.out.println("bytes: " + String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0'));
-//                System.out.println("payloadBit: " + payloadBits[payloadbitCounter]);
-//                System.out.println("after change: " + bitManipulation(String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0'), payloadBits[payloadbitCounter]));
+
+                // System.out.println("after change: " + bitManipulation(String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0'), payloadBits[payloadbitCounter]));
 
 
                 int redBit = Integer.parseInt(bitManipulation(String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0'), payloadBits[payloadbitCounter]));
                 payloadbitCounter++;
+
                 //System.out.println("newREd " + redBit);
                 Integer green = rgb[i].getGreen();
                 // get payload bit function
                 int greenBit = Integer.parseInt(bitManipulation(String.format("%8s", Integer.toBinaryString(green)).replace(' ', '0'), payloadBits[payloadbitCounter]));
                 payloadbitCounter++;
+
                 Integer blue = rgb[i].getBlue();
                 // get payload bit function
                 int blueBit = Integer.parseInt(bitManipulation(String.format("%8s", Integer.toBinaryString(blue)).replace(' ', '0'), payloadBits[payloadbitCounter]));
@@ -112,7 +112,6 @@ public class Stegonography {
         for (int i = 0; (i < x) && (counter < amount); i++) {
             for (int j = 0; (j < y) && (counter < amount); j++) {
                 rgb[counter] = new Color(img.getRGB(i, j));
-                System.out.println("x: "+i +" y: "+j +"Color: "+ rgb[counter]);
                 counter++;
             }
         }
@@ -128,20 +127,49 @@ public class Stegonography {
         }
         String[] theBytes;
         theBytes = getHiddenFileTypeAndSize(stego);
-        for (int i = 0; i < theBytes.length; i++) {
-            System.out.println(theBytes[i]);
+//        for (int i = 0; i < theBytes.length; i++) {
+//            System.out.println(theBytes[i]);
+//        }
+        String sizeBytes = "";
+        String typeBytes = "";
+        String type = "";
+        for (int i = 0; i < 4; i++) {
+            sizeBytes = sizeBytes + theBytes[i];
+        }
+        for (int i = 4; i < 12; i++) {
+            if (Integer.parseUnsignedInt(theBytes[i], 2) != 0) {
+                type = type + (char) Integer.parseUnsignedInt(theBytes[i], 2);
+            }
+            typeBytes = typeBytes + theBytes[i];
+        }
+
+        int numberOfBytes = +Integer.parseUnsignedInt(sizeBytes, 2);
+
+        String[] fileData = getHiddenFileData(stego, numberOfBytes);
+
+        File revealed = new File("CS407/revealed." + type);
+
+        byte[] fileBytes = new byte[fileData.length];
+
+        for (int i = 0; i < fileData.length; i++) {
+            Integer theByte = Integer.parseUnsignedInt(fileData[i],2);
+            fileBytes[i]= theByte.byteValue();
+            //System.out.println("file Bytes: " + new String(fileBytes) );
         }
 
 
-        //get the file from a Stego-image
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(revealed);
+            fileOutputStream.write(fileBytes);
 
-        //get the number of hidden bits
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        //get the file type
 
-        //ignore first 150 Bytes then get the last bit of each byte and add to array
+        System.out.println("Writing for revealed file complete");
 
-        //write generated array to a file of the file type extracted earlier
+
     }
 
     public File getImage(String imagePath) {
@@ -253,7 +281,7 @@ public class Stegonography {
         }
 
         String[] bytes = new String[12];
-        for(int i = 0; i <12; i ++){
+        for (int i = 0; i < 12; i++) {
             bytes[i] = "";
         }
         counter = 0;
@@ -261,7 +289,64 @@ public class Stegonography {
         for (int i = 0; i < 96; i++) {
             if (counter < 8) {
                 bytes[index] = bytes[index] + bits[i];
-                counter ++;
+                counter++;
+            } else {
+                i--;
+                index++;
+                counter = 0;
+            }
+        }
+
+        return bytes;
+    }
+
+    public String[] getHiddenFileData(BufferedImage stegoImage, int numberOfBytes) {
+        int numberOfBits = numberOfBytes * 8;
+
+        int pixels = 1 + (int) Math.ceil((32 + (numberOfBits / 3)));
+//        System.out.println("pixels: " + pixels);
+
+        Color[] rgb = getRGB(stegoImage, pixels);
+        Integer[] bits = new Integer[numberOfBits];
+
+        int counter = 0;
+        for (int i = 32; i < rgb.length; i++) {
+            Integer red = rgb[i].getRed();
+            String redByte = String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0');
+            redByte = redByte.substring(7, 8);
+            bits[counter] = Integer.parseInt(redByte);
+            counter++;
+            if (counter == numberOfBits) {
+                i = rgb.length + 1;
+            } else {
+                Integer green = rgb[i].getGreen();
+                String greenByte = String.format("%8s", Integer.toBinaryString(green)).replace(' ', '0');
+                greenByte = greenByte.substring(7, 8);
+                bits[counter] = Integer.parseInt(greenByte);
+                counter++;
+                if (counter == numberOfBits) {
+                    i = rgb.length + 1;
+                } else {
+                    Integer blue = rgb[i].getBlue();
+                    String blueByte = String.format("%8s", Integer.toBinaryString(blue)).replace(' ', '0');
+                    blueByte = blueByte.substring(7, 8);
+                    bits[counter] = Integer.parseInt(blueByte);
+                    counter++;
+                }
+            }
+        }
+
+        String[] bytes = new String[numberOfBytes];
+        for (int i = 0; i < numberOfBytes; i++) {
+            bytes[i] = "";
+        }
+
+        counter = 0;
+        int index = 0;
+        for (int i = 0; i < numberOfBits; i++) {
+            if (counter < 8) {
+                bytes[index] = bytes[index] + bits[i];
+                counter++;
             } else {
                 i--;
                 index++;
