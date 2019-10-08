@@ -37,6 +37,41 @@ public class Stegonography {
 
             //write the rest of the file
 
+            int amount = (int) getFileSize(fileToHide) + 96;
+            Color[] rgb = getRGB(cover, amount);
+
+            for (int i = 0; i < rgb.length ; i++ ){
+
+                Integer red = rgb[i].getRed();
+                // get payload bit function
+                int redBit = Integer.parseInt(bitManipulation(Integer.toBinaryString(red), payloadbit));
+
+                Integer green = rgb[i].getGreen();
+                // get payload bit function
+                int greenBit = Integer.parseInt(bitManipulation(Integer.toBinaryString(red), payloadbit));
+
+                Integer blue = rgb[i].getRed();
+                // get payload bit function
+                int blueBit = Integer.parseInt(bitManipulation(Integer.toBinaryString(red), payloadbit));
+
+                Color newrgb = new Color(redBit,greenBit,blueBit);
+
+                rgb[i] = newrgb;
+            }
+
+            BufferedImage cover2 = cover;
+            int x = cover2.getWidth();
+            int y = cover2.getHeight();
+            int counter = 0;
+
+            for (int i = 0; (i < x) && (counter < amount); i++) {
+                for (int j = 0; (j < y) && (counter < amount); j++) {
+                    cover2.setRGB(i,j, rgb[counter].getRGB());
+                    counter++;
+                }
+            }
+
+
             //write altered cover image to new file
             File stegoImage = new File("CS407/stegoImage.BMP");
             try {
