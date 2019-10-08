@@ -6,6 +6,7 @@ public class Main {
         Stegonography stego = new Stegonography();
         File coverImage = stego.getImage("CS407/MARBLES.BMP");
         File fileToHide = new File("CS407/test.txt");
+
         try {
             stego.hideFile(coverImage, fileToHide);
         } catch (IOException e) {
