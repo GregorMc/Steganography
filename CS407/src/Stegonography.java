@@ -2,33 +2,34 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.ByteBuffer;
 
 public class Stegonography {
     public void hideFile(File coverImage, File fileToHide) throws IOException {
         if (enoughSpace(coverImage, fileToHide)) {
-            //start hiding the image
-            //get the type of the file
-            String fileType = getFileTypeToHide(fileToHide.getPath());
-            //how big is the file to hide
-            long fileSize = getFileSize(fileToHide);
-            //both of the above are at the start of every stegoimage
             BufferedImage cover = null;
             try {
                 cover = ImageIO.read(coverImage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //start changing bits in the coverImage but ignore the first 54 Bytes
 
             int amount = ((int) getFileSize(fileToHide) * 8 + 96) / 3;
             Color[] rgb = getRGB(cover, amount);
             byte[] payloadBytes;
-            payloadBytes = getBytesFromFile(fileToHide, getFileSize(fileToHide), getFileTypeToHide(fileToHide.getPath()));
 
+            payloadBytes = getBytesFromFile(fileToHide, getFileSize(fileToHide), getFileTypeToHide(fileToHide.getPath()));
+            System.out.println("straight after");
+
+            System.out.println(String.format("%8s", Integer.toBinaryString((int) payloadBytes[3])).replace(' ', '0'));
+            System.out.println("straight after");
             char[] payloadBits = new char[(payloadBytes.length) * 8];
             int payloadbitCounter = 0;
             for (int i = 0; i < payloadBytes.length; i++) {
                 String currentByte = String.format("%8s", Integer.toBinaryString((int) payloadBytes[i])).replace(' ', '0');
+                if(currentByte.length()>8){
+                    currentByte = currentByte.substring(currentByte.length()-8);
+                }
                 for (int j = 0; j < 8; j++) {
                     payloadBits[payloadbitCounter] = currentByte.charAt(j);
                     payloadbitCounter++;
@@ -36,7 +37,7 @@ public class Stegonography {
             }
 
             payloadbitCounter = 0;
-            // System.out.println("Payload bit length: " + payloadBits.length);
+
             for (int i = 0; i < rgb.length; i++) {
                 Integer red = rgb[i].getRed();
 
@@ -63,7 +64,6 @@ public class Stegonography {
                 Color newrgb = new Color(redBit, greenBit, blueBit);
 
                 rgb[i] = newrgb;
-                //System.out.println(rgb[i]);
             }
 
             BufferedImage cover2 = cover;
@@ -71,19 +71,14 @@ public class Stegonography {
             int y = cover2.getHeight();
             int counter = 0;
 
-            Color check = null;
-
             for (int i = 0; (i < x) && (counter < amount); i++) {
                 for (int j = 0; (j < y) && (counter < amount); j++) {
-                    if (counter == 28) {
-                        Color[] originalrgb = getRGB(cover, amount);
-                        check = originalrgb[28];
-                    }
                     cover2.setRGB(i, j, rgb[counter].getRGB());
                     counter++;
+
+
                 }
             }
-
 
             //write altered cover image to new file
             File stegoImage = new File("CS407/stegoImage.BMP");
@@ -125,15 +120,16 @@ public class Stegonography {
         }
         String[] theBytes;
         theBytes = getHiddenFileTypeAndSize(stego);
-//        for (int i = 0; i < theBytes.length; i++) {
-//            System.out.println(theBytes[i]);
-//        }
+
+
         String sizeBytes = "";
+
         String typeBytes = "";
         String type = "";
         for (int i = 0; i < 4; i++) {
             sizeBytes = sizeBytes + theBytes[i];
         }
+
         for (int i = 4; i < 12; i++) {
             if (Integer.parseUnsignedInt(theBytes[i], 2) != 0) {
                 type = type + (char) Integer.parseUnsignedInt(theBytes[i], 2);
@@ -141,7 +137,9 @@ public class Stegonography {
             typeBytes = typeBytes + theBytes[i];
         }
 
-        int numberOfBytes = +Integer.parseUnsignedInt(sizeBytes, 2);
+        int numberOfBytes = Integer.parseInt(sizeBytes, 2);
+
+
 
         String[] fileData = getHiddenFileData(stego, numberOfBytes);
 
@@ -155,7 +153,6 @@ public class Stegonography {
             //System.out.println("file Bytes: " + new String(fileBytes) );
         }
 
-
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(revealed);
             fileOutputStream.write(fileBytes);
@@ -163,11 +160,7 @@ public class Stegonography {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         System.out.println("Writing for revealed file complete");
-
-
     }
 
     public File getImage(String imagePath) {
@@ -176,21 +169,12 @@ public class Stegonography {
         return coverImage;
     }
 
-    public File getFileToHide(String filePath) {
-        //get file to hide from cover system
-        File fileToHide = new File(filePath);
-        return fileToHide;
-    }
-
-    public long getFileSize(File file) {
+    public int getFileSize(File file) {
         //how many bytes in any given file
-        return file.length();
+        return (int)file.length();
     }
-
 
     public boolean enoughSpace(File coverImage, File fileToHide) {
-        // is the maximum possible file size > file to be hidden file size
-//        long coverImageSize = getFileSize(coverImage);
         BufferedImage cover = null;
         try {
             cover = ImageIO.read(coverImage);
@@ -200,16 +184,16 @@ public class Stegonography {
         long coverImageSize = (cover.getWidth() * cover.getHeight() * 3);
         long fileToHideSize = getFileSize(fileToHide) * 8;
 
-
         if (fileToHideSize < (coverImageSize)) {
             return true;
         }
+        System.out.println("Max space Bytes = " + coverImageSize / 8);
+        System.out.println("Hidden file size Bytes = " + fileToHideSize / 8);
         return false;
     }
 
-    public byte[] getBytesFromFile(File payloadFile, long fileSize, String fileType) throws IOException {
+    public byte[] getBytesFromFile(File payloadFile, int fileSize, String fileType) throws IOException {
         byte[] bytesArray = new byte[(int) payloadFile.length() + 12]; //4 bytes for file length 8 bytes for filetype
-
         byte[] fileTypeByteArray = new byte[8];
         int counter = 0;
         counter = fileType.getBytes().length;
@@ -228,16 +212,13 @@ public class Stegonography {
             bytesArray[i] = fileTypeByteArray[i - 4];
         }
         //the above writes the fileType to the file
-        byte[] filesizebytes = new byte[]{
-                (byte) (fileSize >>> 24),
-                (byte) (fileSize >>> 16),
-                (byte) (fileSize >>> 8),
-                (byte) fileSize};
-
+        byte[] filesizebytes = ByteBuffer.allocate(4).putInt(fileSize).array();
+        //happening here
 
         for (int i = 0; i < 4; i++) {
             bytesArray[i] = filesizebytes[i];
         }
+
         byte[] filebytes = new byte[(int) payloadFile.length()];
         FileInputStream fis = new FileInputStream(payloadFile);
         fis.read(filebytes);
@@ -246,10 +227,6 @@ public class Stegonography {
         for (int i = 0; i < filebytes.length; i++) {
             bytesArray[i + 12] = filebytes[i];
         }
-
-//        for (int i = 0; i < bytesArray.length; i++) {
-//            System.out.println(String.format("%8s", Integer.toBinaryString((int) bytesArray[i])).replace(' ', '0'));
-//        }
         return bytesArray;
     }
 
