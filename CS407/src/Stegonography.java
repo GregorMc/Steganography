@@ -28,6 +28,7 @@ public class Stegonography {
                     System.out.println("here");
                     currentByte = currentByte.substring(currentByte.length()-8);
                 }
+
                 for (int j = 0; j < 8; j++) {
                     payloadBits[payloadbitCounter] = currentByte.charAt(j);
                     payloadbitCounter++;
@@ -39,26 +40,26 @@ public class Stegonography {
             for (int i = 0; i < rgb.length; i++) {
                 Integer red = rgb[i].getRed();
 
-                int redBit = Integer.parseUnsignedInt(bitManipulation(String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0'), payloadBits[payloadbitCounter]), 2);
+                int redBit = (bitManipulation(red.byteValue(), payloadBits[payloadbitCounter])&0xff);
                 payloadbitCounter++;
 
                 Integer green = rgb[i].getGreen();
 
-                int greenBit = Integer.parseUnsignedInt(bitManipulation(String.format("%8s", Integer.toBinaryString(green)).replace(' ', '0'), payloadBits[payloadbitCounter]), 2);
+                int greenBit = (bitManipulation(green.byteValue(), payloadBits[payloadbitCounter])&0xff);
                 payloadbitCounter++;
 
                 Integer blue = rgb[i].getBlue();
 
-                int blueBit = Integer.parseUnsignedInt(bitManipulation(String.format("%8s", Integer.toBinaryString(blue)).replace(' ', '0'), payloadBits[payloadbitCounter]), 2);
+                int blueBit = (bitManipulation(blue.byteValue(), payloadBits[payloadbitCounter])&0xff);
                 payloadbitCounter++;
 
-                if (redBit > 255 || greenBit > 255 || blueBit > 255) {
-                    System.out.println(i);
-                    System.out.println("R: " + (Integer) redBit);
-                    System.out.println("G: " + (Integer) greenBit);
-                    System.out.println("B: " + (Integer) blueBit);
-                    System.out.println("definitely broken");
-                }
+
+//                    System.out.println(i);
+//                    System.out.println("R: " + (Integer) redBit);
+//                    System.out.println("G: " + (Integer) greenBit);
+//                    System.out.println("B: " + (Integer) blueBit);
+//                    System.out.println("definitely broken");
+
                 Color newrgb = new Color(redBit, greenBit, blueBit);
 
                 rgb[i] = newrgb;
@@ -343,15 +344,33 @@ public class Stegonography {
     }
 
 
-    public String bitManipulation(String payload, char payloadBit) {
+    public byte bitManipulation(byte payload, char payloadBit) {
 
-        if (payloadBit == (payload.charAt(payload.length() - 1))) {
-        } else {
-            payload = payload.substring(0, payload.length() - 1);
-            payload = payload + payloadBit;
+        int payloadInt = payload;
+        int lsb = payload & 0x1;
 
+        if(lsb == 1){
+            //its even
+            if(payloadBit == '0'){
+                //swap last bit
+                payload &= ~ 0x1;
+            }
         }
+        else{
+            //its odd
+            if(payloadBit =='1'){
+                //swap last bit
+                payload |= 0x1;
+            }
+        }
+
 
         return payload;
     }
 }
+//        if (payloadBit == (payload.charAt(payload.length() - 1))) {
+//        } else {
+//            payload = payload.substring(0, payload.length() - 1);
+//            payload = payload + payloadBit;
+//
+//        }
