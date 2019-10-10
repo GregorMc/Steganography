@@ -19,15 +19,13 @@ public class Stegonography {
             byte[] payloadBytes;
 
             payloadBytes = getBytesFromFile(fileToHide, getFileSize(fileToHide), getFileTypeToHide(fileToHide.getPath()));
-            System.out.println("straight after");
 
-            System.out.println(String.format("%8s", Integer.toBinaryString((int) payloadBytes[3])).replace(' ', '0'));
-            System.out.println("straight after");
             char[] payloadBits = new char[(payloadBytes.length) * 8];
             int payloadbitCounter = 0;
             for (int i = 0; i < payloadBytes.length; i++) {
-                String currentByte = String.format("%8s", Integer.toBinaryString((int) payloadBytes[i])).replace(' ', '0');
+                String currentByte = String.format("%8s", Integer.toBinaryString(payloadBytes[i]&0xFF)).replace(' ', '0');
                 if(currentByte.length()>8){
+                    System.out.println("here");
                     currentByte = currentByte.substring(currentByte.length()-8);
                 }
                 for (int j = 0; j < 8; j++) {
