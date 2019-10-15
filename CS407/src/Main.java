@@ -12,7 +12,7 @@ public class Main {
         Stegonography stego = new Stegonography();
         while (!allowedInput) {
             System.out.println("Please select one of the options below");
-            System.out.println("1: A bmp image of a stickman\n2: A jpg image of a stickman\n3: A jpg image of a stickman\n4: A txt file containing the first 10 chapters of A Tale of 2 Cities by Charles Dickens" +
+            System.out.println("1: A bmp image of a stickman\n2: A jpg image of a stickman\n3: A png image of a stickman\n4: A txt file containing the first 10 chapters of A Tale of 2 Cities by Charles Dickens" +
                     "\n5: A gif of Stewie from Family Guy\n6: Part of the Rick and Morty theme song\n7: Our Project Work breakdown pdf document \n8: Project breakdown.odt" +
                     "\n9: Enter your own Cover Image and Payload file ");
             System.out.println("Which example would you like to run?: ");
@@ -92,15 +92,18 @@ public class Main {
             }
             reader.close();
         }
-
         File coverImage = stego.getImage("CS407/" + coverImageFileName);
         File fileToHide = new File("CS407/" + file);
+        boolean hiddenSuccessfully = false;
         try {
-            stego.hideFile(coverImage, fileToHide);
+           hiddenSuccessfully = stego.hideFile(coverImage, fileToHide);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        File stegoFile = new File("CS407/stegoImage.BMP");
-        stego.revealFile(stegoFile);
+        if(hiddenSuccessfully){
+            File stegoFile = new File("CS407/stegoImage.BMP");
+            stego.revealFile(stegoFile);
+        }
+
     }
 }

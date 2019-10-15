@@ -5,7 +5,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 public class Stegonography {
-    public void hideFile(File coverImage, File fileToHide) throws IOException {
+    public boolean hideFile(File coverImage, File fileToHide) throws IOException {
         BufferedImage cover = null;
         cover = ImageIO.read(coverImage);
         if (enoughSpace(cover, fileToHide)) {
@@ -19,7 +19,6 @@ public class Stegonography {
             for (int i = 0; i < payloadBytes.length; i++) {
                 String currentByte = String.format("%8s", Integer.toBinaryString(payloadBytes[i] & 0xFF)).replace(' ', '0');
                 if (currentByte.length() > 8) {
-                    System.out.println("here");
                     currentByte = currentByte.substring(currentByte.length() - 8);
                 }
 
@@ -71,8 +70,10 @@ public class Stegonography {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return true;
         } else {
             System.out.println("The coverImage does not have a big enough file size to hide the given file");
+            return false;
         }
 
     }
@@ -128,7 +129,6 @@ public class Stegonography {
         for (int i = 0; i < fileData.length; i++) {
             Integer theByte = Integer.parseUnsignedInt(fileData[i], 2);
             fileBytes[i] = theByte.byteValue();
-            //System.out.println("file Bytes: " + new String(fileBytes) );
         }
 
         try {
@@ -160,8 +160,6 @@ public class Stegonography {
         if (fileToHideSize < (coverImageSize)) {
             return true;
         }
-        System.out.println("Max space Bytes = " + coverImageSize / 8);
-        System.out.println("Hidden file size Bytes = " + fileToHideSize / 8);
         return false;
     }
 
