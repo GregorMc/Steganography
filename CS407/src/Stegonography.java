@@ -247,36 +247,28 @@ public class Stegonography {
 
     public String[] getHiddenFileData(BufferedImage stegoImage, int numberOfBytes) {
         int numberOfBits = numberOfBytes * 8;
-
         int pixels = 1 + (int) Math.ceil((32 + (numberOfBits / 3)));
         Color[] rgb = getRGB(stegoImage, pixels);
         Integer[] bits = new Integer[numberOfBits];
-
         int counter = 0;
         for (int i = 32; i < rgb.length; i++) {
             if (counter == numberOfBits) {
                 i = rgb.length + 1;
             } else {
                 Integer red = rgb[i].getRed();
-                String redByte = String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0');
-                redByte = redByte.substring(7, 8);
-                bits[counter] = Integer.parseInt(redByte);
+                bits[counter] = red &0x1;
                 counter++;
                 if (counter == numberOfBits) {
                     i = rgb.length + 1;
                 } else {
                     Integer green = rgb[i].getGreen();
-                    String greenByte = String.format("%8s", Integer.toBinaryString(green)).replace(' ', '0');
-                    greenByte = greenByte.substring(7, 8);
-                    bits[counter] = Integer.parseInt(greenByte);
+                    bits[counter] = green&0x1;
                     counter++;
                     if (counter == numberOfBits) {
                         i = rgb.length + 1;
                     } else {
                         Integer blue = rgb[i].getBlue();
-                        String blueByte = String.format("%8s", Integer.toBinaryString(blue)).replace(' ', '0');
-                        blueByte = blueByte.substring(7, 8);
-                        bits[counter] = Integer.parseInt(blueByte);
+                        bits[counter] = blue&0x1;
                         counter++;
                     }
                 }
@@ -287,7 +279,6 @@ public class Stegonography {
         for (int i = 0; i < numberOfBytes; i++) {
             bytes[i] = "";
         }
-
         counter = 0;
         int index = 0;
         for (int i = 0; i < numberOfBits; i++) {
