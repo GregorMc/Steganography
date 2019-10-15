@@ -104,6 +104,5 @@ public class Main {
             File stegoFile = new File("CS407/stegoImage.BMP");
             stego.revealFile(stegoFile);
         }
-
     }
 }
