@@ -8,7 +8,6 @@ public class Main {
         Scanner reader = new Scanner(System.in);  // Reading from System.in
         boolean allowedInput = false;
         int n = 1;
-
         Stegonography stego = new Stegonography();
         while (!allowedInput) {
             System.out.println("Please select one of the options below");
@@ -41,7 +40,7 @@ public class Main {
             file = "example.png";
         }
         if (example == 3) {
-            file = "test.txt";
+            file = "test2.txt";
         }
         if (example == 4) {
             file = "source.gif";

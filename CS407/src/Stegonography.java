@@ -8,22 +8,28 @@ public class Stegonography {
     public boolean hideFile(File coverImage, File fileToHide) throws IOException {
         BufferedImage cover = null;
         cover = ImageIO.read(coverImage);
+
         if (enoughSpace(cover, fileToHide)) {
             int amount = ((int) getFileSize(fileToHide) * 8 + 96) / 3;
             Color[] rgb = getRGB(cover, amount);
             byte[] payloadBytes;
             payloadBytes = getBytesFromFile(fileToHide, getFileSize(fileToHide), getFileTypeToHide(fileToHide.getPath()));
 
-            char[] payloadBits = new char[(payloadBytes.length) * 8];
+            byte[] payloadBits = new byte[(payloadBytes.length) * 8];
             int payloadbitCounter = 0;
-            for (int i = 0; i < payloadBytes.length; i++) {
-                String currentByte = String.format("%8s", Integer.toBinaryString(payloadBytes[i] & 0xFF)).replace(' ', '0');
-                if (currentByte.length() > 8) {
-                    currentByte = currentByte.substring(currentByte.length() - 8);
-                }
 
+            for (int i = 0; i < payloadBytes.length; i++) {
+                byte currentByteByte = (byte) (payloadBytes[i] & 0xFF);
                 for (int j = 0; j < 8; j++) {
-                    payloadBits[payloadbitCounter] = currentByte.charAt(j);
+                    //we have to read in the left most bit first, if not then the file is in reverse
+                    payloadBits[payloadbitCounter] = (byte) (currentByteByte & 128);
+                    //the bit that we want is now in payloadBits at the 128 bit segment of the byte
+                    payloadBits[payloadbitCounter] = (byte) (payloadBits[payloadbitCounter] >> 7);
+                    //the bit we want is now in the rightmost segment of the byte
+                    payloadBits[payloadbitCounter] = (byte) (payloadBits[payloadbitCounter] & 0x1);
+                    //we now have only the bit we want
+                    currentByteByte = (byte) (currentByteByte << 1);
+                    //we have shifted the byte to the left so we can get the next bit in the byte
                     payloadbitCounter++;
                 }
             }
@@ -31,20 +37,19 @@ public class Stegonography {
             payloadbitCounter = 0;
 
             for (int i = 0; i < rgb.length; i++) {
-                Integer red = rgb[i].getRed();
 
+                Integer red = rgb[i].getRed();
                 int redBit = (bitManipulation(red.byteValue(), payloadBits[payloadbitCounter]) & 0xff);
                 payloadbitCounter++;
 
                 Integer green = rgb[i].getGreen();
-
                 int greenBit = (bitManipulation(green.byteValue(), payloadBits[payloadbitCounter]) & 0xff);
                 payloadbitCounter++;
 
                 Integer blue = rgb[i].getBlue();
-
                 int blueBit = (bitManipulation(blue.byteValue(), payloadBits[payloadbitCounter]) & 0xff);
                 payloadbitCounter++;
+
                 Color newrgb = new Color(redBit, greenBit, blueBit);
                 rgb[i] = newrgb;
             }
@@ -106,10 +111,10 @@ public class Stegonography {
         String sizeBytes = "";
         String typeBytes = "";
         String type = "";
-
         for (int i = 0; i < 4; i++) {
             sizeBytes = sizeBytes + theBytes[i];
         }
+
 
         for (int i = 4; i < 12; i++) {
             if (Integer.parseUnsignedInt(theBytes[i], 2) != 0) {
@@ -203,12 +208,12 @@ public class Stegonography {
 
     public String[] getHiddenFileTypeAndSize(BufferedImage stegoImage) {
         Color[] rgb = getRGB(stegoImage, 32);
-        Integer[] bits = new Integer[96];
+        int[] bits = new int[96];
 
         int counter = 0;
         for (int i = 0; i < rgb.length; i++) {
             Integer red = rgb[i].getRed();
-            bits[counter] = (red &0x1);
+            bits[counter] = (red & 0x1);
             counter++;
 
             Integer green = rgb[i].getGreen();
@@ -216,7 +221,7 @@ public class Stegonography {
             counter++;
 
             Integer blue = rgb[i].getBlue();
-            bits[counter] = (blue&0x1);
+            bits[counter] = (blue & 0x1);
             counter++;
         }
 
@@ -250,19 +255,19 @@ public class Stegonography {
                 i = rgb.length + 1;
             } else {
                 Integer red = rgb[i].getRed();
-                bits[counter] = red &0x1;
+                bits[counter] = red & 0x1;
                 counter++;
                 if (counter == numberOfBits) {
                     i = rgb.length + 1;
                 } else {
                     Integer green = rgb[i].getGreen();
-                    bits[counter] = green&0x1;
+                    bits[counter] = green & 0x1;
                     counter++;
                     if (counter == numberOfBits) {
                         i = rgb.length + 1;
                     } else {
                         Integer blue = rgb[i].getBlue();
-                        bits[counter] = blue&0x1;
+                        bits[counter] = blue & 0x1;
                         counter++;
                     }
                 }
@@ -296,17 +301,18 @@ public class Stegonography {
         return fileType;
     }
 
-    public byte bitManipulation(byte payload, char payloadBit) {
+    public byte bitManipulation(byte payload, byte payloadByte) {
+        int payloadBit = payloadByte & 0x1;
         int lsb = payload & 0x1;
         if (lsb == 1) {
             //its even
-            if (payloadBit == '0') {
+            if (payloadBit == 0) {
                 //swap last bit
                 payload &= ~0x1;
             }
         } else {
             //its odd
-            if (payloadBit == '1') {
+            if (payloadBit == 1) {
                 //swap last bit
                 payload |= 0x1;
             }
