@@ -208,21 +208,15 @@ public class Stegonography {
         int counter = 0;
         for (int i = 0; i < rgb.length; i++) {
             Integer red = rgb[i].getRed();
-            String redByte = String.format("%8s", Integer.toBinaryString(red)).replace(' ', '0');
-            redByte = redByte.substring(7, 8);
-            bits[counter] = Integer.parseInt(redByte);
+            bits[counter] = (red &0x1);
             counter++;
 
             Integer green = rgb[i].getGreen();
-            String greenByte = String.format("%8s", Integer.toBinaryString(green)).replace(' ', '0');
-            greenByte = greenByte.substring(7, 8);
-            bits[counter] = Integer.parseInt(greenByte);
+            bits[counter] = (green & 0x1);
             counter++;
 
             Integer blue = rgb[i].getBlue();
-            String blueByte = String.format("%8s", Integer.toBinaryString(blue)).replace(' ', '0');
-            blueByte = blueByte.substring(7, 8);
-            bits[counter] = Integer.parseInt(blueByte);
+            bits[counter] = (blue&0x1);
             counter++;
         }
 
