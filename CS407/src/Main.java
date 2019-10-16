@@ -40,7 +40,7 @@ public class Main {
             file = "example.png";
         }
         if (example == 3) {
-            file = "test2.txt";
+            file = "test.txt";
         }
         if (example == 4) {
             file = "source.gif";
