@@ -30,66 +30,68 @@ public class Main {
 
         int example = n - 1;
         String file = null;
-        if (example == 0) {
-            file = "example.bmp";
-        }
-        if (example == 1) {
-            file = "example.jpg";
-        }
-        if (example == 2) {
-            file = "example.png";
-        }
-        if (example == 3) {
-            file = "test.txt";
-        }
-        if (example == 4) {
-            file = "source.gif";
-        }
-        if (example == 5) {
-            file = "mpthreetest.mp3";
-        }
-        if (example == 6) {
-            file = "Project work breakdown.pdf";
-        }
-        if (example == 7) {
-            file = "Project breakdown.odt";
-        }
-        if (example == 8) {
-            //enter your own
-            reader = new Scanner(System.in);
-            allowedInput = false;
+        switch (example) {
+            case 0:
+                file = "example.bmp";
+                break;
+            case 1:
+                file = "example.jpg";
+                break;
+            case 2:
+                file = "example.png";
+                break;
+            case 3:
+                file = "test.txt";
+                break;
+            case 4:
+                file = "source.gif";
+                break;
+            case 5:
+                file = "R&MSample.mp3";
+                break;
+            case 6:
+                file = "Project work breakdown.pdf";
+                break;
+            case 7:
+                file = "Project breakdown.odt";
+                break;
+            case 8:
+                //enter your own
+                reader = new Scanner(System.in);
+                allowedInput = false;
 
-            //input validation
-            while (!allowedInput) {
-                System.out.println("Please enter the file name of your coverImage");
-                coverImageFileName = reader.nextLine();
-                File coverfile = new File("CS407/" + coverImageFileName);
-                String coverfileType = stego.getFileTypeToHide(coverImageFileName);
+                //input validation
+                while (!allowedInput) {
+                    System.out.println("Please enter the file name of your coverImage");
+                    coverImageFileName = reader.nextLine();
+                    File coverfile = new File("CS407/" + coverImageFileName);
+                    String coverfileType = stego.getFileTypeToHide(coverImageFileName);
 
-                if (coverfile.exists() && !coverfile.isDirectory()) {
-                    //file exists
-                    coverfileType = coverfileType.toLowerCase();
-                    allowedInput = true;
-                    if (!coverfileType.equals("bmp")) {
-                        System.out.println("Sorry the cover image can only be a Bitmap");
-                        allowedInput = false;
-                    }
-                } else {
-                    allowedInput = false;
-                }
-                if (allowedInput) {
-                    System.out.println("Please enter the file name of your payload");
-                    file = reader.nextLine();
-                    File f = new File("CS407/" + file);
-                    if (f.exists() && !f.isDirectory()) {
-                        // file exists
+                    if (coverfile.exists() && !coverfile.isDirectory()) {
+                        //file exists
+                        coverfileType = coverfileType.toLowerCase();
                         allowedInput = true;
+                        if (!coverfileType.equals("bmp")) {
+                            System.out.println("Sorry the cover image can only be a Bitmap");
+                            allowedInput = false;
+                        }
                     } else {
                         allowedInput = false;
                     }
+                    if (allowedInput) {
+                        System.out.println("Please enter the file name of your payload");
+                        file = reader.nextLine();
+                        File f = new File("CS407/" + file);
+                        if (f.exists() && !f.isDirectory()) {
+                            // file exists
+                            allowedInput = true;
+                        } else {
+                            allowedInput = false;
+                        }
+                    }
                 }
-            }
-            reader.close();
+                reader.close();
+                break;
         }
         if (example == 9) {
             File stegoFile = new File("CS407/stegoImage.BMP");

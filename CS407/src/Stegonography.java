@@ -112,7 +112,6 @@ public class Stegonography {
         byte[] fileData = getHiddenFileData(stego, numberOfBytes);
         File revealed = new File("CS407/revealed." + type);
         try {
-            System.out.println("path: " + revealed.getAbsolutePath());
             FileOutputStream fileOutputStream = new FileOutputStream(revealed);
             fileOutputStream.write(fileData);
 
@@ -262,7 +261,6 @@ public class Stegonography {
         return bytes;
     }
 
-    //get the file type of the file to hide
     public String getFileTypeToHide(String filepath) {
         int typeStart = filepath.indexOf(".");
         String fileType = filepath.substring((typeStart + 1));
