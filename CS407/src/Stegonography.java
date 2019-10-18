@@ -55,8 +55,6 @@ public class Stegonography {
                 for (int j = 0; (j < y) && (counter < amount); j++) {
                     cover.setRGB(i, j, rgb[counter].getRGB());
                     counter++;
-
-
                 }
             }
             //write altered cover image to new file
