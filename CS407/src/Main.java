@@ -94,7 +94,7 @@ public class Main {
                 break;
         }
         if (example == 9) {
-            File stegoFile = new File("stegoImage.BMP");
+            File stegoFile = new File("CS407/stegoImage.BMP");
             if (stegoFile.exists() && !stegoFile.isDirectory()) {
                 stego.revealFile(stegoFile);
             } else {
